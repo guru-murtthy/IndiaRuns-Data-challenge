@@ -1,0 +1,22 @@
+# Ignore datasets and zip files
+*.zip
+*.jsonl
+*.docx
+*.pptx
+*.png
+__MACOSX/
+.DS_Store
+
+# Glob match dataset folder due to bracket characters
+*challenge*
+*PUB*
+
+# Ignore virtual environments
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Ignore local system directories
+.gemini/
+/temp_files/
