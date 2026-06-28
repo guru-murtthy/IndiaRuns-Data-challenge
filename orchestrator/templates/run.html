@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ run.job.title }} - Results</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <main class="shell">
+    <section class="hero compact">
+      <div>
+        <a class="back-link" href="/">Back to dashboard</a>
+        <span class="eyebrow">Run {{ run.run_id }}</span>
+        <h1>{{ run.job.title }}</h1>
+        <p class="lede">{{ run.job.description }}</p>
+      </div>
+      <div class="hero-card">
+        <div class="metric">
+          <span>Status</span>
+          <strong>{{ run.status|upper }}</strong>
+        </div>
+        <div class="metric">
+          <span>Top score</span>
+          <strong>{{ run.summary.top_score }}</strong>
+        </div>
+        <div class="metric">
+          <span>Required skills</span>
+          <strong>{{ run.summary.required_skills|join(', ') if run.summary.required_skills else 'General' }}</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <section class="panel">
+        <div class="panel-head" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+          <div>
+            <span class="eyebrow">Pipeline Status</span>
+            <h2>Stage Progress</h2>
+          </div>
+          <span class="badge">Completed</span>
+        </div>
+        <div class="stage-list" style="display: flex; flex-direction: column; gap: 16px;">
+          {% for stage in run.stages %}
+            <article class="stage-card" style="display: flex; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 16px; border-radius: 12px; border: 1px solid var(--glass-border);">
+              <div>
+                <strong style="display: block; margin-bottom: 4px;">{{ stage.name }}</strong>
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">{{ stage.detail }}</p>
+              </div>
+              <span class="badge neutral" style="align-self: center;">{{ stage.status }}</span>
+            </article>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+          <div>
+            <span class="eyebrow">Submission Output</span>
+            <h2>Export Ranked Shortlist</h2>
+          </div>
+          <span class="badge {{ 'neutral' if export_exists else '' }}">
+            {{ 'CSV ready' if export_exists else 'Generate on click' }}
+          </span>
+        </div>
+        <p class="lede" style="margin-bottom: 24px; font-size: 1rem;">
+          Generate a CSV matching the exact 100-row validator format for the challenge submission.
+        </p>
+        <a class="button-link" href="/runs/{{ run.run_id }}/export">Download Validator CSV</a>
+      </section>
+    </section>
+
+    <section class="panel table-panel">
+      <div class="panel-head" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <div>
+          <span class="eyebrow">Top Candidates</span>
+          <h2>Ranked Shortlist</h2>
+        </div>
+        <span class="badge">{{ run.results|length }} candidates evaluated</span>
+      </div>
+      <div class="table-wrap" style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; min-width: 800px;">
+          <thead>
+            <tr>
+              <th style="padding: 16px; border-bottom: 1px solid var(--glass-border); text-align: left; color: var(--text-secondary);">Candidate</th>
+              <th style="padding: 16px; border-bottom: 1px solid var(--glass-border); text-align: left; color: var(--text-secondary);">Role</th>
+              <th style="padding: 16px; border-bottom: 1px solid var(--glass-border); text-align: left; color: var(--text-secondary);">Semantic</th>
+              <th style="padding: 16px; border-bottom: 1px solid var(--glass-border); text-align: left; color: var(--text-secondary);">Rank</th>
+              <th style="padding: 16px; border-bottom: 1px solid var(--glass-border); text-align: left; color: var(--text-secondary);">Valid</th>
+              <th style="padding: 16px; border-bottom: 1px solid var(--glass-border); text-align: left; color: var(--text-secondary);">Final</th>
+              <th style="padding: 16px; border-bottom: 1px solid var(--glass-border); text-align: left; color: var(--text-secondary);">Reason</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for result in run.results %}
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                <td style="padding: 16px;">
+                  <strong style="display: block; color: var(--text-primary);">{{ result.candidate_name }}</strong>
+                  <span style="font-size: 0.85rem; color: var(--text-secondary);">{{ result.location }}</span>
+                </td>
+                <td style="padding: 16px; color: var(--text-secondary);">{{ result.title }}</td>
+                <td style="padding: 16px; color: var(--text-secondary);">{{ result.semantic_score }}</td>
+                <td style="padding: 16px; color: var(--text-secondary);">{{ result.rank_score }}</td>
+                <td style="padding: 16px; color: var(--text-secondary);">{{ result.validation_score }}</td>
+                <td style="padding: 16px;"><strong style="color: var(--accent-primary); font-size: 1.1rem;">{{ result.final_score }}</strong></td>
+                <td style="padding: 16px; color: var(--text-secondary); max-width: 300px; font-size: 0.9rem;">{{ result.reason }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,6 +1,0 @@
-model_name: "all-MiniLM-L6-v2"
-dimension: 384
-batch_size: 256
-local_model_path: "sentence_transformer_model"
-faiss_index_path: "models/checkpoints/faiss_index.bin"
-candidate_ids_path: "models/checkpoints/candidate_ids.json"
