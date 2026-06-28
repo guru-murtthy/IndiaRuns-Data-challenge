@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>India Runs Candidate Discovery</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <div>
+        <span class="eyebrow">Member 4 Deliverable</span>
+        <h1>Intelligent Candidate Discovery</h1>
+        <p class="lede">
+          Experience the end-to-end AI recruiting pipeline. Parse requirements, compute semantic embeddings, apply learning-to-rank, and export a CSV perfectly aligned with the challenge validator.
+        </p>
+      </div>
+      <div class="hero-card">
+        <div class="metric">
+          <span>Architecture</span>
+          <strong>FastAPI + Modular Pipeline</strong>
+        </div>
+        <div class="metric">
+          <span>Data Scale</span>
+          <strong>Top 100 Candidates Export</strong>
+        </div>
+        <div class="metric">
+          <span>Output Format</span>
+          <strong>Challenge Validator Compliant</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <form class="panel" action="/runs" method="post">
+        <div class="panel-head" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+          <div>
+            <span class="eyebrow">Start Pipeline</span>
+            <h2>Configure Job Role</h2>
+          </div>
+          <span class="badge">E2E Ready</span>
+        </div>
+
+        <label for="title">Role Title</label>
+        <input id="title" name="title" type="text" value="{{ default_title }}" placeholder="e.g., AI Engineer">
+
+        <label for="top_k">Candidates to Rank (Top K)</label>
+        <select id="top_k" name="top_k">
+          <option value="100" selected>Top 100 (Validator Standard)</option>
+          <option value="50">Top 50</option>
+          <option value="10">Top 10</option>
+        </select>
+
+        <label for="description">Job Description</label>
+        <textarea id="description" name="description" placeholder="Paste job description here...">{{ default_jd }}</textarea>
+
+        <button type="submit">Run Discovery Pipeline</button>
+      </form>
+
+      <section class="panel">
+        <div class="panel-head" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+          <div>
+            <span class="eyebrow">History</span>
+            <h2>Recent Runs</h2>
+          </div>
+          <span class="badge neutral">In-Memory</span>
+        </div>
+        
+        {% if recent_runs %}
+          <div class="run-list">
+            {% for run in recent_runs %}
+              <a class="run-item" href="/runs/{{ run.run_id }}">
+                <div>
+                  <strong>{{ run.job.title }}</strong>
+                  <p>{{ run.run_id }}</p>
+                </div>
+                <span class="badge">{{ run.results|length }} results</span>
+              </a>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="empty-state">
+            No pipeline runs yet. Configure a job role on the left to start discovering candidates.
+          </div>
+        {% endif %}
+      </section>
+    </section>
+  </main>
+</body>
+</html>

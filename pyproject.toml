@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "india_runs_ai_challenge"
+version = "0.1.0"
+description = "Intelligent Candidate Discovery & Ranking Challenge"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.116.1",
+    "uvicorn>=0.35.0",
+    "jinja2>=3.1.6",
+    "python-multipart>=0.0.20",
+    "httpx>=0.28.1",
+    "pytest>=8.4.1"
+]

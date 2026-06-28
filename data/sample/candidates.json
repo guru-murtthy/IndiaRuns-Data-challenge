@@ -1,0 +1,74 @@
+[
+  {
+    "candidate_id": "cand_001",
+    "candidate_name": "Aarav Mehta",
+    "title": "Machine Learning Engineer",
+    "location": "Bengaluru",
+    "skills": ["python", "faiss", "fastapi", "docker", "sentence-transformers"],
+    "experience_years": 4,
+    "summary": "Built candidate search and recommendation systems using semantic retrieval and ranking pipelines."
+  },
+  {
+    "candidate_id": "cand_002",
+    "candidate_name": "Diya Sharma",
+    "title": "Data Scientist",
+    "location": "Hyderabad",
+    "skills": ["python", "pandas", "lightgbm", "catboost", "feature-engineering"],
+    "experience_years": 3,
+    "summary": "Worked on ranking models, feature engineering, and model calibration for talent intelligence use cases."
+  },
+  {
+    "candidate_id": "cand_003",
+    "candidate_name": "Rohan Kulkarni",
+    "title": "Backend Engineer",
+    "location": "Pune",
+    "skills": ["fastapi", "postgresql", "docker", "rest", "pytest"],
+    "experience_years": 5,
+    "summary": "Delivered production APIs, export pipelines, and containerized data workflows."
+  },
+  {
+    "candidate_id": "cand_004",
+    "candidate_name": "Sneha Iyer",
+    "title": "NLP Engineer",
+    "location": "Chennai",
+    "skills": ["python", "nlp", "embeddings", "faiss", "retrieval"],
+    "experience_years": 4,
+    "summary": "Designed semantic search flows for resume and job matching with strong NLP relevance tuning."
+  },
+  {
+    "candidate_id": "cand_005",
+    "candidate_name": "Kabir Jain",
+    "title": "Full Stack Developer",
+    "location": "Delhi",
+    "skills": ["react", "fastapi", "docker", "csv", "ui"],
+    "experience_years": 3,
+    "summary": "Built analytics dashboards and export-heavy internal tools for operations teams."
+  },
+  {
+    "candidate_id": "cand_006",
+    "candidate_name": "Ananya Rao",
+    "title": "Applied AI Engineer",
+    "location": "Bengaluru",
+    "skills": ["python", "embeddings", "lightgbm", "docker", "fastapi"],
+    "experience_years": 2,
+    "summary": "Implemented AI matching workflows with vector search, scoring, and deployment support."
+  },
+  {
+    "candidate_id": "cand_007",
+    "candidate_name": "Vikram Patel",
+    "title": "Search Engineer",
+    "location": "Mumbai",
+    "skills": ["faiss", "retrieval", "ranking", "python", "redis"],
+    "experience_years": 6,
+    "summary": "Focused on large-scale retrieval systems, top-k search, and ranking optimization."
+  },
+  {
+    "candidate_id": "cand_008",
+    "candidate_name": "Meera Nair",
+    "title": "Product Data Analyst",
+    "location": "Kochi",
+    "skills": ["sql", "python", "csv", "dashboards", "analytics"],
+    "experience_years": 2,
+    "summary": "Supports hiring teams with insights dashboards, data quality checks, and reporting."
+  }
+]
