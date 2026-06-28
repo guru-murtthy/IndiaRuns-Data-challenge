@@ -55,12 +55,21 @@ def main():
     # 3. Load full candidate records for validation
     print("Loading candidate records for validation...")
     candidate_records = {}
-    with open(args.candidates, 'r', encoding='utf-8') as f:
-        for line in f:
-            cand = json.loads(line)
-            cid = cand.get("candidate_id")
-            if cid in sim_dict:
-                candidate_records[cid] = cand
+    
+    if args.candidates.endswith('.json'):
+        with open(args.candidates, 'r', encoding='utf-8') as f:
+            candidates_list = json.load(f)
+    else:
+        candidates_list = []
+        with open(args.candidates, 'r', encoding='utf-8') as f:
+            for line in f:
+                if line.strip():
+                    candidates_list.append(json.loads(line))
+                    
+    for cand in candidates_list:
+        cid = cand.get("candidate_id")
+        if cid in sim_dict:
+            candidate_records[cid] = cand
                 
     # 4. Filter and Score
     valid_candidates_scores = []

@@ -77,25 +77,33 @@ def main():
         
     print(f"Reading candidates from {args.candidates}...")
     
+    if args.candidates.endswith('.json'):
+        with open(args.candidates, 'r', encoding='utf-8') as f:
+            candidates_data = json.load(f)
+    else:
+        candidates_data = []
+        with open(args.candidates, 'r', encoding='utf-8') as f:
+            for line in f:
+                if line.strip():
+                    candidates_data.append(json.loads(line))
+                    
     valid_candidates = []
     skipped_honeypots = 0
     
-    with open(args.candidates, 'r', encoding='utf-8') as f:
-        for idx, line in enumerate(f):
-            if args.limit and idx >= args.limit:
-                break
-            cand = json.loads(line)
+    for idx, cand in enumerate(candidates_data):
+        if args.limit and idx >= args.limit:
+            break
             
-            # Filter out honeypots using Member 3 Validation Layer
-            is_valid, _, _ = validate_candidate_timeline(cand)
-            if not is_valid:
-                skipped_honeypots += 1
-                continue
-                
-            valid_candidates.append(cand)
+        # Filter out honeypots using Member 3 Validation Layer
+        is_valid, _, _ = validate_candidate_timeline(cand)
+        if not is_valid:
+            skipped_honeypots += 1
+            continue
             
-            if len(valid_candidates) % 10000 == 0:
-                print(f"Loaded {len(valid_candidates)} valid candidates...")
+        valid_candidates.append(cand)
+        
+        if len(valid_candidates) % 10000 == 0:
+            print(f"Loaded {len(valid_candidates)} valid candidates...")
                 
     print(f"Loaded total {len(valid_candidates)} valid candidates (skipped {skipped_honeypots} honeypots).")
     
