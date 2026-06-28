@@ -44,13 +44,19 @@ def main():
     jd_emb = np.array(jd_emb).astype('float32')
     
     # 2. Search FAISS Index
-    print("Searching FAISS index...")
-    similarities, indices = index.search(jd_emb, 1000)
-    retrieved_indices = indices[0]
-    retrieved_sims = similarities[0]
+    # Search up to index size if index is smaller than 1000
+    search_k = min(1000, index.ntotal)
+    similarities, indices = index.search(jd_emb, search_k)
     
-    retrieved_cids = [cand_ids[idx] for idx in retrieved_indices]
-    sim_dict = dict(zip(retrieved_cids, retrieved_sims))
+    retrieved_cids = []
+    sim_dict = {}
+    for idx, sim in zip(indices[0], similarities[0]):
+        if idx == -1 or idx >= len(cand_ids):
+            continue
+        cid = cand_ids[idx]
+        if cid not in sim_dict:
+            sim_dict[cid] = sim
+            retrieved_cids.append(cid)
     
     # 3. Load full candidate records for validation
     print("Loading candidate records for validation...")
