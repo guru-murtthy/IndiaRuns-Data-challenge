@@ -31,7 +31,12 @@ STARTUP_FOUNDING = {
     "Mad Street Den": 2013,
     "Observe.AI": 2017,
     "Wysa": 2015,
-    "Haptik": 2013
+    "Haptik": 2013,
+    "Verloop.io": 2016,
+    "Yellow.ai": 2016,
+    "Locobuzz": 2015,
+    "Flipkart": 2007,
+    "Mindtree": 1999
 }
 
 def parse_date(date_str):
@@ -53,11 +58,12 @@ def validate_candidate_timeline(candidate):
     history = candidate.get("career_history", [])
     skills = candidate.get("skills", [])
     edu = candidate.get("education", [])
+    yoe = float(profile.get("years_of_experience", 0.0))
     
     anomalies = []
     current_date = datetime.date(2026, 6, 28) # Hackathon context date
     
-    # 1. Startup founding date check (Honeypot Type A: Worked at company before it existed)
+    # 1. Startup founding date check & duration check (Honeypot Type A: Worked at company before it existed or too long)
     for job in history:
         company = job.get("company")
         if company in STARTUP_FOUNDING:
@@ -69,6 +75,16 @@ def validate_candidate_timeline(candidate):
                     f"Honeypot Indicator: Candidate worked at '{company}' starting in {start_s}, "
                     f"but the company was founded in {founded_year}."
                 )
+            
+            # Check if duration exceeds company age
+            duration_months = job.get("duration_months")
+            if duration_months:
+                max_possible_months = (current_date.year - founded_year) * 12 + 6
+                if duration_months > max_possible_months:
+                    anomalies.append(
+                        f"Honeypot Indicator: Candidate worked at '{company}' for {duration_months} months, "
+                        f"but the company was founded in {founded_year} (max possible duration: {max_possible_months} months)."
+                    )
                 
     # 2. Skill duration check (Honeypot Type B: Expert/Advanced proficiency with 0 duration)
     # Keyword stuffers list skills as expert but have never actually used them (0 duration)
@@ -79,14 +95,15 @@ def validate_candidate_timeline(candidate):
         if prof in ["expert", "advanced"] and duration == 0:
             fake_skills.append(skill.get("name"))
             
-    if len(fake_skills) >= 3:
+    if len(fake_skills) >= 1:
         anomalies.append(
-            f"Honeypot Indicator: Candidate lists {len(fake_skills)} expert/advanced skills "
+            f"Honeypot Indicator: Candidate lists expert/advanced skills "
             f"with 0 duration: {fake_skills}."
         )
         
     # 3. Basic timeline date overlap / consistency checks
     intervals = []
+    start_dates = []
     for job in history:
         start_s = job.get("start_date")
         end_s = job.get("end_date")
@@ -96,6 +113,9 @@ def validate_candidate_timeline(candidate):
         start_d = parse_date(start_s)
         end_d = parse_date(end_s) if end_s else current_date
         
+        if start_d:
+            start_dates.append(start_d)
+            
         if start_d and end_d:
             intervals.append((start_d, end_d, company))
             
@@ -116,7 +136,17 @@ def validate_candidate_timeline(candidate):
                     f"but calculated duration is {dur_calc} months."
                 )
                 
-    # 4. Senior roles before graduation check
+    # 4. YoE exceeds elapsed time check (Honeypot Type C)
+    if start_dates:
+        first_start = min(start_dates)
+        elapsed_years = (current_date - first_start).days / 365.25
+        if yoe > elapsed_years + 0.5:
+            anomalies.append(
+                f"Honeypot Indicator: Candidate claims {yoe} YoE, but first job started on {first_start} "
+                f"({elapsed_years:.2f} years ago)."
+            )
+            
+    # 5. Senior roles before graduation check
     grad_years = [e.get("end_year") for e in edu if e.get("end_year")]
     min_grad_year = min(grad_years) if grad_years else None
     if min_grad_year:
@@ -131,7 +161,7 @@ def validate_candidate_timeline(candidate):
                         f"but did not graduate college until {min_grad_year}."
                     )
                     
-    # 5. Overlapping full-time jobs check
+    # 6. Overlapping full-time jobs check
     overlaps = 0
     for i in range(len(intervals)):
         for j in range(i+1, len(intervals)):

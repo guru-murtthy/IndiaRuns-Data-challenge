@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 import pickle
 import faiss
+import torch
 from sentence_transformers import SentenceTransformer
 from utils import (
     validate_candidate_timeline,
@@ -118,8 +119,8 @@ def main():
         
         # Text for sentence embedding
         profile = cand.get("profile", {})
-        skills_text = ", ".join([s.get("name", "") for s in cand.get("skills", [])])
-        text_rep = f"{profile.get('current_title', '')} | {profile.get('headline', '')}. {profile.get('summary', '')}. Skills: {skills_text}"
+        skills_text = ", ".join([s.get("name", "") for s in cand.get("skills", [])])[:120]
+        text_rep = f"{profile.get('current_title', '')} | {profile.get('headline', '')}. Skills: {skills_text}"
         text_representations.append(text_rep)
         
     df_features = pd.DataFrame(feature_list)

@@ -71,11 +71,18 @@ def calculate_career_growth_score(candidate):
     }
     
     stability_penalties = 0
+    has_long_stay = False
+    durations = []
     
     for job in sorted_jobs:
         company = job.get("company", "")
         title = job.get("title", "").lower()
         duration = job.get("duration_months", 0)
+        
+        if duration > 0:
+            durations.append(duration)
+            if duration >= 36:
+                has_long_stay = True
         
         # 1. Company tier evaluation (jumping from service firms to product startups)
         if company in CONSULTING_FIRMS:
@@ -97,7 +104,7 @@ def calculate_career_growth_score(candidate):
             if tier > prev_company_tier:
                 growth_points += 2.5
             elif tier < prev_company_tier:
-                growth_points -= 1.0 # Moving from product back to service
+                growth_points -= 1.5 # Moving from product back to service
                 
         if prev_title_level > 0:
             # Promotion jump
@@ -111,9 +118,17 @@ def calculate_career_growth_score(candidate):
         prev_company_tier = tier
         prev_title_level = level
         
+    # Tenures check
+    avg_duration = sum(durations) / len(durations) if durations else 0
+    if len(durations) >= 2 and avg_duration < 18:
+        growth_points -= 2.0 # Penalize frequent hoppers
+        
+    if has_long_stay:
+        growth_points += 1.5 # Reward candidates with proven long stays
+        
     # Calculate final score
     base_growth_score = min(10.0, max(0.0, growth_points))
-    stability_multiplier = max(0.4, 1.0 - (stability_penalties * 0.15))
+    stability_multiplier = max(0.3, 1.0 - (stability_penalties * 0.15))
     
     return base_growth_score * stability_multiplier
 

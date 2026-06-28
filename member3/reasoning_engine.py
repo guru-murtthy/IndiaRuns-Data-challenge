@@ -41,6 +41,12 @@ def generate_reasoning(candidate, rank, score):
     title_company_fact = f"working as a {current_title} at {current_company}"
     availability_fact = f"notice period of {notice_period} days"
     
+    cand_num = 0
+    try:
+        cand_num = int(candidate.get("candidate_id", "CAND_0000000").split("_")[1])
+    except Exception:
+        pass
+
     # 3. Dynamic clause construction based on rank and profile details
     if rank <= 10:
         # Top 10: Elite fit, strong matching skills, product company, highly active
@@ -56,8 +62,11 @@ def generate_reasoning(candidate, rank, score):
             conclusion = f"Based in {location} with active platform engagement signals."
             
         sentences = [intro, body, conclusion]
-        # Return a 2 sentence combo
-        return " ".join(random.sample(sentences, 2))
+        # Return a 2 sentence combo deterministically
+        s_idx1 = cand_num % 3
+        s_idx2 = (cand_num + 1) % 3
+        selected_indices = sorted([s_idx1, s_idx2])
+        return " ".join([sentences[i] for i in selected_indices])
         
     elif rank <= 40:
         # Rank 11-40: Solid matches, highlight experience range and core skills
@@ -71,7 +80,10 @@ def generate_reasoning(candidate, rank, score):
             conclusion = f"Actively responsive ({response_rate}% response rate) and located in {location}."
             
         sentences = [intro, body, conclusion]
-        return " ".join(random.sample(sentences, 2))
+        s_idx1 = cand_num % 3
+        s_idx2 = (cand_num + 1) % 3
+        selected_indices = sorted([s_idx1, s_idx2])
+        return " ".join([sentences[i] for i in selected_indices])
         
     elif rank <= 75:
         # Rank 41-75: Decent adjacent matches, note the shift or missing direct experience

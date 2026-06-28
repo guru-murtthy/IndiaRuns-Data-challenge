@@ -20,3 +20,10 @@ __pycache__/
 # Ignore local system directories
 .gemini/
 /temp_files/
+
+# Precomputed models and files
+faiss_index.bin
+candidate_features.csv
+candidate_ids.json
+lightgbm_model.bin
+sentence_transformer_model/

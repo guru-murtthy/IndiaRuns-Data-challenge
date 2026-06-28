@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import json
 import os
 import argparse
@@ -65,17 +66,20 @@ def main():
     if args.candidates.endswith('.json'):
         with open(args.candidates, 'r', encoding='utf-8') as f:
             candidates_list = json.load(f)
+            for cand in candidates_list:
+                cid = cand.get("candidate_id")
+                if cid in sim_dict:
+                    candidate_records[cid] = cand
     else:
-        candidates_list = []
         with open(args.candidates, 'r', encoding='utf-8') as f:
             for line in f:
-                if line.strip():
-                    candidates_list.append(json.loads(line))
-                    
-    for cand in candidates_list:
-        cid = cand.get("candidate_id")
-        if cid in sim_dict:
-            candidate_records[cid] = cand
+                if not line.strip():
+                    continue
+                parts = line.split('"', 4)
+                if len(parts) >= 4 and parts[1] == 'candidate_id':
+                    cid = parts[3]
+                    if cid in sim_dict:
+                        candidate_records[cid] = json.loads(line)
                 
     # 4. Filter and Score
     valid_candidates_scores = []
@@ -102,6 +106,21 @@ def main():
             skipped_honeypots += 1
             continue
             
+        # Title relevance filter
+        profile = cand.get("profile", {})
+        current_title = profile.get("current_title", "").lower()
+        
+        # Blacklist of completely non-technical / irrelevant roles
+        blacklist = [
+            "graphic designer", "designer", "illustrator", "marketing", "hr ", "hr manager", "recruiter", 
+            "human resources", "accountant", "accounting", "finance", "sales", "executive", 
+            "customer support", "support agent", "helpdesk", "mechanical engineer", 
+            "civil engineer", "operations manager", "project manager", "business analyst",
+            "content writer", "writer"
+        ]
+        if any(keyword in current_title for keyword in blacklist):
+            continue
+            
         row = df_features[df_features["candidate_id"] == cid]
         if row.empty:
             continue
@@ -119,7 +138,6 @@ def main():
         final_score = lgb_score * 0.6 + sim_score * 0.4
         
         # Location modifier
-        profile = cand.get("profile", {})
         location = profile.get("location", "").lower()
         country = profile.get("country", "").lower()
         signals = cand.get("redrob_signals", {})
@@ -139,6 +157,30 @@ def main():
         elif notice_period > 90:
             final_score -= 0.10
             
+        # Title modifier (AI/ML roles get a significant boost, backend/data secondary boost)
+        title_mod = 0.0
+        ai_ml_keywords = [
+            "ml", "machine learning", "ai ", "ai-", "artificial intelligence", 
+            "data scientist", "nlp", "computer vision", "cv engineer", "deep learning", 
+            "reinforcement learning", "recommendation", "search engineer", "retrieval",
+            "applied scientist", "ai specialist", "ai research"
+        ]
+        if any(keyword in current_title or current_title.startswith("ai") or current_title.endswith("ai") for keyword in ai_ml_keywords):
+            title_mod = 0.15
+        elif any(k in current_title for k in ["backend", "data engineer", "analytics engineer"]):
+            title_mod = 0.05
+            
+        final_score += title_mod
+        
+        # Experience modifier (5-9 years YoE is preferred, penalize too low or extremely high)
+        yoe = float(profile.get("years_of_experience", 0.0))
+        if 5.0 <= yoe <= 9.0:
+            final_score += 0.05
+        elif yoe < 3.0:
+            final_score -= 0.15
+        elif yoe > 15.0:
+            final_score -= 0.10
+            
         valid_candidates_scores.append({
             "candidate_id": cid,
             "score": final_score,
@@ -149,8 +191,8 @@ def main():
     print(f"Consulting-only candidates skipped: {skipped_consulting}")
     print(f"Total valid candidates: {len(valid_candidates_scores)}")
     
-    # 5. Deterministic sorting: score desc, candidate_id asc
-    valid_candidates_scores.sort(key=lambda x: (-x["score"], x["candidate_id"]))
+    # 5. Deterministic sorting: rounded score desc, candidate_id asc to satisfy tie-breaker
+    valid_candidates_scores.sort(key=lambda x: (-round(x["score"], 6), x["candidate_id"]))
     
     # Top 100
     top_100 = valid_candidates_scores[:100]
@@ -160,14 +202,14 @@ def main():
     for rank_idx, item in enumerate(top_100):
         rank = rank_idx + 1
         cid = item["candidate_id"]
-        score = item["score"]
+        score = round(item["score"], 6)
         cand_record = item["record"]
         
         reasoning = generate_reasoning(cand_record, rank, score)
         csv_rows.append({
             "candidate_id": cid,
             "rank": rank,
-            "score": round(score, 6),
+            "score": score,
             "reasoning": reasoning
         })
         

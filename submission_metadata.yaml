@@ -1,0 +1,74 @@
+# Redrob Hackathon — Submission Metadata
+# Mirroring the portal metadata for Stage 3 validation
+
+# ============================================================================
+# Team identity
+# ============================================================================
+team_name: "IndiaRuns-Challengers"  # Registered participant team name
+
+primary_contact:
+  name: "Gururaj"
+  email: "gururaj@example.com"
+  phone: "+91-9999999999"
+
+team_members:
+  - name: "Gururaj"
+    email: "gururaj@example.com"
+    role: "ML & Validation Engineer"
+
+# ============================================================================
+# Code and reproducibility
+# ============================================================================
+github_repo: "https://github.com/guru-murtthy/IndiaRuns-Data-challenge"
+sandbox_link: "https://huggingface.co/spaces/guru-murtthy/redrob-candidate-ranker"
+
+reproduce_command: "python rank.py --candidates ./candidates.jsonl --out ./submission.csv"
+
+# ============================================================================
+# Compute environment
+# ============================================================================
+compute:
+  platform: "Local Linux Box"
+  cpu_cores: 8
+  ram_gb: 16
+  python_version: "3.11.4"
+  os: "Ubuntu 22.04 LTS"
+  uses_gpu_for_inference: false
+  has_network_during_ranking: false
+  pre_computation_required: true
+  pre_computation_time_minutes: 5
+
+# ============================================================================
+# AI tools declaration
+# ============================================================================
+ai_tools_used:
+  - "Claude"
+  - "Gemini"
+  - "GitHub Copilot"
+
+ai_usage_summary: |
+  Used Gemini 3.5 Flash for codebase refactoring, implementing strict chronological 
+  validation logic to filter out dataset honeypots, and constructing the deterministic 
+  reasoning engine. Used GitHub Copilot for code autocompletion. No candidate profile 
+  data was fed to external APIs.
+
+# ============================================================================
+# Approach summary
+# ============================================================================
+methodology_summary: |
+  Hybrid semantic search and Learning-to-Rank (LTR) pipeline with strict candidate validation 
+  and title relevance layers. We first exclude synthetic honeypots using timeline consistency, 
+  startup founding age limits, and YoE elapsed-time checks. The remaining candidates are matched 
+  using sentence-transformer embeddings and a LightGBM ranker trained on profile completeness 
+  and behavioral responsiveness. We apply post-retrieval title and experience relevance filters, 
+  and generate factual, deterministic 1-2 sentence reasonings.
+
+# ============================================================================
+# Declarations
+# ============================================================================
+declarations:
+  read_submission_spec: true
+  code_is_original_work: true
+  no_collusion: true
+  honeypot_check_done: true
+  reproduction_tested: true
