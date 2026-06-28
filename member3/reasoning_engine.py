@@ -75,25 +75,22 @@ def generate_reasoning(candidate, rank, score):
         
     elif rank <= 75:
         # Rank 41-75: Decent adjacent matches, note the shift or missing direct experience
-        intro = f"Backend engineer showing {experience_fact} and relevant experience at {current_company}."
-        
         if matched_skills:
-            body = f"Has exposure to {skills_phrase}, though lacks direct experience building large-scale vector search indexes in production."
+            body = f"Backend engineer showing {experience_fact} and exposure to {skills_phrase} at {current_company}."
         else:
-            body = "Solid developer with robust Python and database foundations, but lacks NLP-specific retrieval experience."
+            body = f"Developer with {experience_fact} and database foundations at {current_company}, but lacks NLP-specific retrieval experience."
             
-        conclusion = f"Located in {location} with a {notice_period}-day notice period."
+        conclusion = f"Based in {location} with a {notice_period}-day notice period."
         
-        return f"{intro} {body} {conclusion}"
+        return f"{body} {conclusion}"
         
     else:
         # Rank 76-100: Filler roles, acknowledge gaps explicitly
-        intro = f"Filler candidate at Rank {rank} with {experience_fact}."
-        body = f"Possesses adjacent skills in {skills_phrase} but lacks the NLP/IR experience specified in the JD."
+        intro_body = f"Filler candidate at Rank {rank} with {experience_fact} and adjacent skills in {skills_phrase} (lacks direct NLP/IR experience)."
         
         if notice_period > 90:
-            conclusion = f"Long notice period ({notice_period} days) and low active engagement indicators."
+            conclusion = f"Currently at {current_company} with a long notice period of {notice_period} days."
         else:
-            conclusion = f"Available in {notice_period} days; currently at {current_company}."
+            conclusion = f"Currently at {current_company} with a {notice_period}-day notice period."
             
-        return f"{intro} {body} {conclusion}"
+        return f"{intro_body} {conclusion}"
