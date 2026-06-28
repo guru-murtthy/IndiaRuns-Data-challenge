@@ -109,18 +109,18 @@ pip install -r requirements.txt
 ### 2. Precomputation (Offline)
 This step processes the full candidate dataset, filters out honeypots, extracts features, generates text embeddings using `all-MiniLM-L6-v2`, builds a FAISS index, and trains the LightGBM ranking model. 
 ```bash
-python precompute.py --candidates ./[PUB]\ India_runs_data_and_ai_challenge/India_runs_data_and_ai_challenge/candidates.jsonl
+python precompute.py --candidates candidates.jsonl
 ```
 *Note: This generates `faiss_index.bin`, `candidate_features.csv`, `lightgbm_model.bin`, and `candidate_ids.json`.*
 
 ### 3. Running the Ranker (Sandboxed Execution)
 This is the official reproduction command that runs within the 5-minute wall-clock constraint on CPU without network:
 ```bash
-python rank.py --candidates ./[PUB]\ India_runs_data_and_ai_challenge/India_runs_data_and_ai_challenge/candidates.jsonl --out team_xxx.csv
+python rank.py --candidates candidates.jsonl --out team_xxx.csv
 ```
 
 ### 4. Format Validation
 Verify that your submission CSV is 100% compliant with the challenge rules before uploading:
 ```bash
-python [PUB]\ India_runs_data_and_ai_challenge/India_runs_data_and_ai_challenge/validate_submission.py team_xxx.csv
+python validate_submission.py team_xxx.csv
 ```

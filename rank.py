@@ -15,7 +15,7 @@ from member3 import generate_reasoning
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--candidates", type=str, default="[PUB] India_runs_data_and_ai_challenge/India_runs_data_and_ai_challenge/candidates.jsonl")
+    parser.add_argument("--candidates", type=str, default="candidates.jsonl")
     parser.add_argument("--out", type=str, default="submission.csv")
     args = parser.parse_args()
     

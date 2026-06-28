@@ -132,7 +132,7 @@ def run_analysis(candidates_path, limit=10000):
 
 if __name__ == '__main__':
     # Determine the dataset path
-    candidates_path = "[PUB] India_runs_data_and_ai_challenge/India_runs_data_and_ai_challenge/candidates.jsonl"
+    candidates_path = "candidates.jsonl"
     if not os.path.exists(candidates_path):
         candidates_path = "candidates.jsonl"
         
