@@ -1,87 +1,106 @@
 #!/usr/bin/env python3
-import json
 import os
+import json
 import argparse
+import pickle
 import pandas as pd
 import numpy as np
-import pickle
-import faiss
-from sentence_transformers import SentenceTransformer
-from utils import (
-    validate_candidate_timeline,
-    CONSULTING_FIRMS
-)
-from member3 import generate_reasoning
+
+from configs.app import get_config
+from ingestion.candidate_loader import load_candidates
+from ingestion.jd_loader import load_jd
+from validation.timeline_validator import validate_candidate_timeline
+from embeddings.encoder import CandidateEncoder
+from embeddings.faiss_builder import load_faiss_index
+from embeddings.retriever import retrieve_top_k
+from ranking.scorer import predict_gbm_scores
+from ranking.score_combiner import combine_and_adjust_score
+from ranking.final_rank import rank_and_select_top_k
+from reasoning.reasoning_engine import generate_reasoning
+from submission.csv_writer import write_submission_csv
+from utils.logger import log_info, log_error
+from utils.timer import Timer
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--candidates", type=str, default="candidates.jsonl")
-    parser.add_argument("--out", type=str, default="submission.csv")
+    parser.add_argument("--candidates", type=str, default="data/raw/candidates.jsonl")
+    parser.add_argument("--out", type=str, default="data/output/submission.csv")
     args = parser.parse_args()
     
+    config = get_config()
+    
+    # Check candidates path and fallback
     if not os.path.exists(args.candidates):
-        args.candidates = "candidates.jsonl"
+        # Check standard fallback folder
+        fallback_path = "[PUB] India_runs_data_and_ai_challenge/India_runs_data_and_ai_challenge/candidates.jsonl"
+        if os.path.exists(fallback_path):
+            args.candidates = fallback_path
+        elif os.path.exists("candidates.jsonl"):
+            args.candidates = "candidates.jsonl"
+            
+    log_info("Loading ranking models and resources...")
+    
+    # 1. Load Embeddings Model
+    encoder_path = config["embeddings"].get("local_model_path", "models/embeddings/sentence_transformer_model")
+    if not os.path.exists(encoder_path) and os.path.exists("sentence_transformer_model"):
+        encoder_path = "sentence_transformer_model"
         
-    print("Loading ranking models and indexes...")
-    # Load model and resources offline
-    model = SentenceTransformer("sentence_transformer_model")
-    index = faiss.read_index("faiss_index.bin")
-    with open("candidate_ids.json", "r") as f:
+    encoder = CandidateEncoder(local_dir=encoder_path)
+    encoder.load_model()
+    
+    # 2. Load FAISS index
+    faiss_path = config["embeddings"].get("faiss_index_path", "models/checkpoints/faiss_index.bin")
+    if not os.path.exists(faiss_path) and os.path.exists("faiss_index.bin"):
+        faiss_path = "faiss_index.bin"
+        
+    index = load_faiss_index(faiss_path)
+    
+    # 3. Load Candidate IDs
+    cand_ids_path = config["embeddings"].get("candidate_ids_path", "models/checkpoints/candidate_ids.json")
+    if not os.path.exists(cand_ids_path) and os.path.exists("candidate_ids.json"):
+        cand_ids_path = "candidate_ids.json"
+        
+    with open(cand_ids_path, "r") as f:
         cand_ids = json.load(f)
-    with open("lightgbm_model.bin", "rb") as f:
+        
+    # 4. Load LightGBM model
+    gbm_path = config["ranker"].get("model_path", "models/checkpoints/lightgbm_model.bin")
+    if not os.path.exists(gbm_path) and os.path.exists("lightgbm_model.bin"):
+        gbm_path = "lightgbm_model.bin"
+        
+    with open(gbm_path, "rb") as f:
         gbm = pickle.load(f)
-    df_features = pd.read_csv("candidate_features.csv")
+        
+    # 5. Load Candidate Features DataFrame
+    features_path = config["ranker"].get("features_path", "data/processed/candidate_features.csv")
+    if not os.path.exists(features_path) and os.path.exists("candidate_features.csv"):
+        features_path = "candidate_features.csv"
+        
+    df_features = pd.read_csv(features_path)
     
-    # Target Job Description query representation
-    jd_query = (
-        "Senior ML Engineer Search Ranking Retrieval. "
-        "Production experience with embeddings-based retrieval systems, sentence-transformers, vector search, FAISS, Pinecone, Qdrant, Milvus. "
-        "Strong Python. Designing evaluation frameworks NDCG, MRR, MAP. 5-9 years experience, product companies. Pune, Noida."
-    )
+    # Load target Job Description
+    jd_query = load_jd()
     
-    # 1. Embed JD
-    print("Embedding Job Description...")
-    jd_emb = model.encode([jd_query], normalize_embeddings=True)
+    # 6. Embed Job Description
+    log_info("Embedding Job Description...")
+    jd_emb = encoder.encode([jd_query], show_progress_bar=False)
     jd_emb = np.array(jd_emb).astype('float32')
     
-    # 2. Search FAISS Index
-    # Search up to index size if index is smaller than 1000
-    search_k = min(1000, index.ntotal)
-    similarities, indices = index.search(jd_emb, search_k)
+    # 7. Search FAISS Index
+    log_info("Retrieving candidates using semantic search...")
+    retrieved_cids, sim_dict = retrieve_top_k(index, jd_emb, k=1000, candidate_ids=cand_ids)
     
-    retrieved_cids = []
-    sim_dict = {}
-    for idx, sim in zip(indices[0], similarities[0]):
-        if idx == -1 or idx >= len(cand_ids):
-            continue
-        cid = cand_ids[idx]
-        if cid not in sim_dict:
-            sim_dict[cid] = sim
-            retrieved_cids.append(cid)
+    # 8. Load full candidate records for validation
+    log_info("Loading candidate records for validation...")
+    try:
+        candidates_list = load_candidates(args.candidates)
+    except FileNotFoundError:
+        log_error(f"Could not load candidates from {args.candidates}.")
+        return
+        
+    candidate_records = {c.get("candidate_id"): c for c in candidates_list if c.get("candidate_id") in sim_dict}
     
-    # 3. Load full candidate records for validation
-    print("Loading candidate records for validation...")
-    candidate_records = {}
-    
-    if args.candidates.endswith('.json'):
-        with open(args.candidates, 'r', encoding='utf-8') as f:
-            candidates_list = json.load(f)
-            for cand in candidates_list:
-                cid = cand.get("candidate_id")
-                if cid in sim_dict:
-                    candidate_records[cid] = cand
-    else:
-        with open(args.candidates, 'r', encoding='utf-8') as f:
-            for line in f:
-                if not line.strip():
-                    continue
-                parts = line.split('"', 4)
-                if len(parts) >= 4 and parts[1] == 'candidate_id':
-                    cid = parts[3]
-                    if cid in sim_dict:
-                        candidate_records[cid] = json.loads(line)
-                
-    # 4. Filter and Score
+    # 9. Filter and Score
     valid_candidates_scores = []
     feature_cols = [
         "years_of_experience", "skill_count", "skill_evidence_score", 
@@ -95,12 +114,19 @@ def main():
     skipped_honeypots = 0
     skipped_consulting = 0
     
+    log_info("Running validation and model scoring...")
+    
+    # Predict GBM scores in batch for efficiency
+    lgb_scores = predict_gbm_scores(gbm, df_features, feature_cols, retrieved_cids)
+    
+    blacklist = config["parser"].get("blacklist_titles", [])
+    
     for cid in retrieved_cids:
         cand = candidate_records.get(cid)
         if not cand:
             continue
             
-        # Strict Honeypot filter via Member 3 Validation Layer
+        # Strict Honeypot filter
         is_valid, _, _ = validate_candidate_timeline(cand)
         if not is_valid:
             skipped_honeypots += 1
@@ -109,115 +135,59 @@ def main():
         # Title relevance filter
         profile = cand.get("profile", {})
         current_title = profile.get("current_title", "").lower()
-        
-        # Blacklist of completely non-technical / irrelevant roles
-        blacklist = [
-            "graphic designer", "designer", "illustrator", "marketing", "hr ", "hr manager", "recruiter", 
-            "human resources", "accountant", "accounting", "finance", "sales", "executive", 
-            "customer support", "support agent", "helpdesk", "mechanical engineer", 
-            "civil engineer", "operations manager", "project manager", "business analyst",
-            "content writer", "writer"
-        ]
         if any(keyword in current_title for keyword in blacklist):
             continue
             
-        row = df_features[df_features["candidate_id"] == cid]
-        if row.empty:
+        lgb_score = lgb_scores.get(cid)
+        if lgb_score is None:
             continue
             
         # consulting firm filtering
-        if row["is_consulting_only"].values[0] == 1.0:
+        row = df_features[df_features["candidate_id"] == cid]
+        if not row.empty and row["is_consulting_only"].values[0] == 1.0:
             skipped_consulting += 1
             continue
             
-        X_test = row[feature_cols]
-        lgb_score = gbm.predict(X_test)[0]
-        
-        # Combine FAISS semantic similarity with LightGBM features
+        # Combine and adjust scores
         sim_score = sim_dict[cid]
-        final_score = lgb_score * 0.6 + sim_score * 0.4
+        final_score = combine_and_adjust_score(cid, lgb_score, sim_score, cand)
         
-        # Location modifier
-        location = profile.get("location", "").lower()
-        country = profile.get("country", "").lower()
-        signals = cand.get("redrob_signals", {})
-        willing_to_relocate = signals.get("willing_to_relocate", False)
-        
-        is_preferred_loc = any(loc in location for loc in ["pune", "noida", "delhi", "ncr", "gurgaon", "mumbai", "hyderabad"])
-        if is_preferred_loc:
-            final_score += 0.05
-            
-        if country != "india" and not willing_to_relocate:
-            final_score -= 0.15
-            
-        # Notice period modifier
-        notice_period = int(signals.get("notice_period_days", 30))
-        if notice_period <= 30:
-            final_score += 0.05
-        elif notice_period > 90:
-            final_score -= 0.10
-            
-        # Title modifier (AI/ML roles get a significant boost, backend/data secondary boost)
-        title_mod = 0.0
-        ai_ml_keywords = [
-            "ml", "machine learning", "ai ", "ai-", "artificial intelligence", 
-            "data scientist", "nlp", "computer vision", "cv engineer", "deep learning", 
-            "reinforcement learning", "recommendation", "search engineer", "retrieval",
-            "applied scientist", "ai specialist", "ai research"
-        ]
-        if any(keyword in current_title or current_title.startswith("ai") or current_title.endswith("ai") for keyword in ai_ml_keywords):
-            title_mod = 0.15
-        elif any(k in current_title for k in ["backend", "data engineer", "analytics engineer"]):
-            title_mod = 0.05
-            
-        final_score += title_mod
-        
-        # Experience modifier (5-9 years YoE is preferred, penalize too low or extremely high)
-        yoe = float(profile.get("years_of_experience", 0.0))
-        if 5.0 <= yoe <= 9.0:
-            final_score += 0.05
-        elif yoe < 3.0:
-            final_score -= 0.15
-        elif yoe > 15.0:
-            final_score -= 0.10
-            
         valid_candidates_scores.append({
             "candidate_id": cid,
             "score": final_score,
             "record": cand
         })
         
-    print(f"Honeypots skipped during ranking: {skipped_honeypots}")
-    print(f"Consulting-only candidates skipped: {skipped_consulting}")
-    print(f"Total valid candidates: {len(valid_candidates_scores)}")
+    log_info(f"Honeypots skipped during ranking: {skipped_honeypots}")
+    log_info(f"Consulting-only candidates skipped: {skipped_consulting}")
+    log_info(f"Total valid candidates for sorting: {len(valid_candidates_scores)}")
     
-    # 5. Deterministic sorting: rounded score desc, candidate_id asc to satisfy tie-breaker
-    valid_candidates_scores.sort(key=lambda x: (-round(x["score"], 6), x["candidate_id"]))
+    # 10. Sort and select top 100
+    top_100 = rank_and_select_top_k(valid_candidates_scores, k=100)
     
-    # Top 100
-    top_100 = valid_candidates_scores[:100]
-    
-    # 6. Generate CSV Rows
-    csv_rows = []
+    # 11. Generate Reasonings
+    final_candidates = []
     for rank_idx, item in enumerate(top_100):
-        rank = rank_idx + 1
+        rank_num = rank_idx + 1
         cid = item["candidate_id"]
-        score = round(item["score"], 6)
+        score = item["score"]
         cand_record = item["record"]
         
-        reasoning = generate_reasoning(cand_record, rank, score)
-        csv_rows.append({
+        reasoning = generate_reasoning(cand_record, rank_num, score)
+        final_candidates.append({
             "candidate_id": cid,
-            "rank": rank,
+            "rank": rank_num,
             "score": score,
             "reasoning": reasoning
         })
         
-    df_out = pd.DataFrame(csv_rows)
-    df_out = df_out[["candidate_id", "rank", "score", "reasoning"]]
-    
-    df_out.to_csv(args.out, index=False, encoding="utf-8")
-    print(f"Successfully generated top 100 candidate ranking in {args.out}")
+    # Ensure directory exists for output
+    out_dir = os.path.dirname(args.out)
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
+        
+    write_submission_csv(final_candidates, args.out)
+    log_info(f"Successfully generated top 100 candidate ranking in {args.out}")
 
 if __name__ == '__main__':
     main()

@@ -1,0 +1,12 @@
+# Global Configuration file for IndiaRuns Candidate Ranking Pipeline
+model_name: "all-MiniLM-L6-v2"
+dimension: 384
+batch_size: 256
+learning_rate: 0.1
+num_leaves: 31
+num_boost_round: 100
+lgb_weight: 0.6
+faiss_weight: 0.4
+notice_period_limit: 90
+yoe_min: 5.0
+yoe_max: 9.0

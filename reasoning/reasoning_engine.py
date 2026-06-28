@@ -1,13 +1,4 @@
-import random
-
-# Core JD skills to check for matches
-CORE_JD_SKILLS = {
-    "embeddings", "retrieval", "vector search", "faiss", "pinecone", 
-    "weaviate", "qdrant", "milvus", "opensearch", "elasticsearch", 
-    "python", "sentence-transformers", "ndcg", "mrr", "map",
-    "fine-tuning", "lora", "qlora", "peft", "learning-to-rank", 
-    "xgboost", "lightgbm", "catboost", "distributed systems", "nlp"
-}
+from parser.jd.parser import CORE_JD_SKILLS
 
 def generate_reasoning(candidate, rank, score):
     """

@@ -1,4 +1,5 @@
 import datetime
+from ingestion.validators import parse_date
 
 # Founding years of well-known startups in the dataset company list
 STARTUP_FOUNDING = {
@@ -39,21 +40,12 @@ STARTUP_FOUNDING = {
     "Mindtree": 1999
 }
 
-def parse_date(date_str):
-    if not date_str:
-        return None
-    try:
-        return datetime.datetime.strptime(date_str, "%Y-%m-%d").date()
-    except Exception:
-        return None
-
 def validate_candidate_timeline(candidate):
     """
     Validates a candidate profile for chronological anomalies and honeypot indicators.
     Returns:
         (is_valid: bool, reason: str, anomalies: list)
     """
-    cid = candidate.get("candidate_id")
     profile = candidate.get("profile", {})
     history = candidate.get("career_history", [])
     skills = candidate.get("skills", [])
@@ -63,7 +55,7 @@ def validate_candidate_timeline(candidate):
     anomalies = []
     current_date = datetime.date(2026, 6, 28) # Hackathon context date
     
-    # 1. Startup founding date check & duration check (Honeypot Type A: Worked at company before it existed or too long)
+    # 1. Startup founding date check & duration check
     for job in history:
         company = job.get("company")
         if company in STARTUP_FOUNDING:
@@ -86,8 +78,7 @@ def validate_candidate_timeline(candidate):
                         f"but the company was founded in {founded_year} (max possible duration: {max_possible_months} months)."
                     )
                 
-    # 2. Skill duration check (Honeypot Type B: Expert/Advanced proficiency with 0 duration)
-    # Keyword stuffers list skills as expert but have never actually used them (0 duration)
+    # 2. Skill duration check
     fake_skills = []
     for skill in skills:
         prof = skill.get("proficiency", "").lower()
@@ -127,7 +118,7 @@ def validate_candidate_timeline(candidate):
             if start_d > current_date:
                 anomalies.append(f"Invalid Timeline: Job at '{company}' start date {start_s} is in the future.")
                 
-            # Duration mismatch (delta is > 6 months off reported duration)
+            # Duration mismatch
             delta_days = (end_d - start_d).days
             dur_calc = round(delta_days / 30.4375)
             if dur_reported is not None and abs(dur_calc - dur_reported) > 6:
@@ -136,7 +127,7 @@ def validate_candidate_timeline(candidate):
                     f"but calculated duration is {dur_calc} months."
                 )
                 
-    # 4. YoE exceeds elapsed time check (Honeypot Type C)
+    # 4. YoE exceeds elapsed time check
     if start_dates:
         first_start = min(start_dates)
         elapsed_years = (current_date - first_start).days / 365.25
@@ -160,17 +151,16 @@ def validate_candidate_timeline(candidate):
                         f"Chronological Contradiction: Held senior role '{job.get('title')}' in {start_d.year} "
                         f"but did not graduate college until {min_grad_year}."
                     )
-                    
+                     
     # 6. Overlapping full-time jobs check
     overlaps = 0
     for i in range(len(intervals)):
         for j in range(i+1, len(intervals)):
             s1, e1, c1 = intervals[i]
             s2, e2, c2 = intervals[j]
-            # Check overlap
             if max(s1, s2) < min(e1, e2):
                 overlap_days = (min(e1, e2) - max(s1, s2)).days
-                if overlap_days > 60: # More than 2 months overlap of concurrent full-time roles
+                if overlap_days > 60:
                     overlaps += 1
                     
     if overlaps >= 2:
@@ -179,3 +169,54 @@ def validate_candidate_timeline(candidate):
     is_valid = len(anomalies) == 0
     reason = "; ".join(anomalies) if anomalies else "Authentic profile"
     return is_valid, reason, anomalies
+
+def calculate_resume_authenticity_score(candidate):
+    """
+    Evaluates profile authenticity. Combines timeline validations with platform verification signals.
+    """
+    is_valid, _, anomalies = validate_candidate_timeline(candidate)
+    if not is_valid:
+        return 0.0
+        
+    score = 100.0
+    signals = candidate.get("redrob_signals", {})
+    
+    # Platform verifications
+    if not signals.get("verified_email", False):
+        score -= 10.0
+    if not signals.get("verified_phone", False):
+        score -= 10.0
+    if not signals.get("linkedin_connected", False):
+        score -= 5.0
+        
+    # GitHub activity check
+    github_score = signals.get("github_activity_score", -1)
+    if github_score == -1:
+        score -= 10.0
+        
+    # Account activity check
+    signup_s = signals.get("signup_date")
+    last_active_s = signals.get("last_active_date")
+    signup_d = parse_date(signup_s)
+    last_active_d = parse_date(last_active_s)
+    
+    if signup_d and last_active_d:
+        if signup_d > last_active_d:
+            score -= 20.0
+            
+    # Minor timeline inconsistencies
+    for job in candidate.get("career_history", []):
+        start_s = job.get("start_date")
+        end_s = job.get("end_date")
+        dur_reported = job.get("duration_months")
+        
+        start_d = parse_date(start_s)
+        end_d = parse_date(end_s) if end_s else datetime.date(2026, 6, 28)
+        
+        if start_d and end_d:
+            delta_days = (end_d - start_d).days
+            dur_calc = round(delta_days / 30.4375)
+            if dur_reported is not None and abs(dur_calc - dur_reported) > 2:
+                score -= 3.0
+                
+    return max(0.0, score)

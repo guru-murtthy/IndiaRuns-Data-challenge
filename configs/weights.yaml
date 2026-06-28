@@ -1,0 +1,11 @@
+lgb_weight: 0.6
+faiss_weight: 0.4
+location_preferred_boost: 0.05
+location_non_india_penalty: -0.15
+notice_period_short_boost: 0.05
+notice_period_long_penalty: -0.10
+title_ai_ml_boost: 0.15
+title_secondary_boost: 0.05
+experience_preferred_boost: 0.05
+experience_low_penalty: -0.15
+experience_high_penalty: -0.10
