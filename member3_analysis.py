@@ -137,6 +137,6 @@ if __name__ == '__main__':
         candidates_path = "candidates.jsonl"
         
     if os.path.exists(candidates_path):
-        run_analysis(candidates_path, 10000)
+        run_analysis(candidates_path, 100000)
     else:
         print("Dataset not found at the expected paths. Make sure you extracted it.")
