@@ -14,3 +14,10 @@ class CandidateProfile(BaseModel):
     experience: List[ExperienceItem] = Field(default_factory=list)
     skills: List[dict] = Field(default_factory=list)
     education: List[dict] = Field(default_factory=list)
+
+class JobDescriptionSchema(BaseModel):
+    jd_id: str = "unknown"
+    required_skills: List[str] = Field(default_factory=list)
+    min_experience_months: int = 0
+    preferred_titles: List[str] = Field(default_factory=list)
+    location_preference: str = "any"
