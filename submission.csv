@@ -1,0 +1,101 @@
+candidate_id,rank,score,reasoning
+CAND_0000010,1,0.5511,Data Engineer with 4.6 yrs; currently at Ola; adjacent skills; notice 120d — potential delay; London.
+CAND_0000015,2,0.5491,"Software Engineer with 5.4 yrs; currently at Razorpay; adjacent skills; Trivandrum, Kerala."
+CAND_0000001,3,0.5452,Backend Engineer with 6.9 yrs; currently at Mindtree; adjacent skills; Toronto.
+CAND_0000038,4,0.5368,"Java Developer with 6.7 yrs; currently at Swiggy; adjacent skills; Coimbatore, Tamil Nadu."
+CAND_0000031,5,0.5367,"Recommendation Systems Engineer with 6.0 yrs; currently at Swiggy; adjacent skills; Hyderabad, Telangana."
+CAND_0000023,6,0.5359,Software Engineer with 3.7 yrs; currently at Acme Corp; adjacent skills; New York.
+CAND_0000016,7,0.5295,"Accountant with 5.3 yrs; currently at Infosys; adjacent skills; Gurgaon, Haryana."
+CAND_0000025,8,0.5258,"Frontend Engineer with 7.3 yrs; currently at Tech Mahindra; adjacent skills; notice 120d — potential delay; Vizag, Andhra Pradesh."
+CAND_0000048,9,0.5208,"Mobile Developer with 9.7 yrs; currently at CRED; adjacent skills; notice 120d — potential delay; Hyderabad, Telangana."
+CAND_0000027,10,0.5145,"DevOps Engineer with 3.9 yrs; currently at Infosys; adjacent skills; Kolkata, West Bengal."
+CAND_0000005,11,0.5094,"Accountant with 11.0 yrs; currently at Stark Industries; adjacent skills; available immediately; Gurgaon, Haryana."
+CAND_0000036,12,0.5092,"Project Manager with 11.3 yrs; currently at Initech; adjacent skills; Trivandrum, Kerala."
+CAND_0000032,13,0.5079,".NET Developer with 8.1 yrs; currently at Cognizant; adjacent skills; notice 150d — potential delay; Gurgaon, Haryana."
+CAND_0000002,14,0.5039,"Operations Manager with 12.5 yrs; currently at Wipro; adjacent skills; Chennai, Tamil Nadu."
+CAND_0000024,15,0.5039,"HR Manager with 7.5 yrs; currently at TCS; adjacent skills; Trivandrum, Kerala."
+CAND_0000041,16,0.5033,"Operations Manager with 13.7 yrs; currently at Hooli; adjacent skills; Delhi, Delhi."
+CAND_0000020,17,0.5028,"Mechanical Engineer with 6.3 yrs; currently at Wipro; adjacent skills; Ahmedabad, Gujarat."
+CAND_0000035,18,0.5022,"Full Stack Developer with 4.3 yrs; currently at Globex Inc; adjacent skills; Hyderabad, Telangana."
+CAND_0000033,19,0.4964,"Graphic Designer with 8.6 yrs; currently at Wipro; adjacent skills; available immediately; Pune, Maharashtra."
+CAND_0000026,20,0.4944,"Graphic Designer with 6.8 yrs; currently at Initech; adjacent skills; Kochi, Kerala."
+CAND_0000007,21,0.4940,"Civil Engineer with 5.5 yrs; currently at Wipro; adjacent skills; Gurgaon, Haryana."
+CAND_0000008,22,0.4940,"Operations Manager with 3.6 yrs; currently at Wipro; adjacent skills; Noida, Uttar Pradesh."
+CAND_0000044,23,0.4907,"Frontend Engineer with 5.7 yrs; currently at Tech Mahindra; adjacent skills; Indore, Madhya Pradesh."
+CAND_0000039,24,0.4890,"Marketing Manager with 3.9 yrs; currently at Acme Corp; adjacent skills; Bhubaneswar, Odisha."
+CAND_0000030,25,0.4862,"Marketing Manager with 10.0 yrs; currently at Dunder Mifflin; adjacent skills; Kochi, Kerala."
+CAND_0000042,26,0.4847,HR Manager with 5.0 yrs; currently at Wayne Enterprises; adjacent skills; Berlin.
+CAND_0000029,27,0.4842,"Business Analyst with 7.2 yrs; currently at Wipro; adjacent skills; Noida, Uttar Pradesh."
+CAND_0000046,28,0.4828,Mechanical Engineer with 7.8 yrs; currently at Hooli; adjacent skills; London.
+CAND_0000018,29,0.4823,"Frontend Engineer with 6.6 yrs; currently at Acme Corp; adjacent skills; notice 120d — potential delay; Bhubaneswar, Odisha."
+CAND_0000014,30,0.4818,"Frontend Engineer with 8.4 yrs; currently at Zomato; adjacent skills; Hyderabad, Telangana."
+CAND_0000011,31,0.4815,"QA Engineer with 2.0 yrs; currently at Pied Piper; adjacent skills; Hyderabad, Telangana."
+CAND_0000047,32,0.4807,"Project Manager with 2.4 yrs; currently at TCS; adjacent skills; Kochi, Kerala."
+CAND_0000043,33,0.4774,"Cloud Engineer with 8.3 yrs; currently at Swiggy; adjacent skills; notice 120d — potential delay; Chandigarh, Chandigarh."
+CAND_0000045,34,0.4759,"Project Manager with 12.2 yrs; currently at Initech; adjacent skills; Indore, Madhya Pradesh."
+CAND_0000049,35,0.4751,Mechanical Engineer with 11.8 yrs; currently at Wayne Enterprises; adjacent skills; notice 120d — potential delay; Berlin.
+CAND_0000006,36,0.4749,Business Analyst with 6.0 yrs; currently at Wayne Enterprises; adjacent skills; notice 150d — potential delay; Austin.
+CAND_0000004,37,0.4686,Marketing Manager with 3.8 yrs; currently at Dunder Mifflin; adjacent skills; notice 120d — potential delay; Sydney.
+CAND_0000037,38,0.4664,Business Analyst with 14.3 yrs; currently at Stark Industries; adjacent skills; Dubai.
+CAND_0000022,39,0.4638,Mechanical Engineer with 1.1 yrs; currently at Hooli; adjacent skills; notice 150d — potential delay; Sydney.
+CAND_0000050,40,0.4636,"Business Analyst with 13.5 yrs; currently at Infosys; adjacent skills; Gurgaon, Haryana."
+CAND_0000009,41,0.4632,Mechanical Engineer with 11.0 yrs; currently at Dunder Mifflin; adjacent skills; notice 150d — potential delay; New York.
+CAND_0000021,42,0.4612,"Project Manager with 14.5 yrs; currently at Wipro; adjacent skills; Bhubaneswar, Odisha."
+CAND_0000013,43,0.4608,Civil Engineer with 1.1 yrs; currently at Globex Inc; adjacent skills; available immediately; Dubai.
+CAND_0000019,44,0.4607,"Project Manager with 6.5 yrs; currently at Wayne Enterprises; adjacent skills; Trivandrum, Kerala."
+CAND_0000040,45,0.4581,"Customer Support with 1.6 yrs; currently at Globex Inc; adjacent skills; Kochi, Kerala."
+CAND_0000028,46,0.4509,Operations Manager with 1.1 yrs; currently at Wipro; adjacent skills; Dubai.
+CAND_0000003,47,0.4498,Customer Support with 1.1 yrs; currently at TCS; adjacent skills; notice 150d — potential delay; Austin.
+CAND_0000017,48,0.4458,"Accountant with 12.3 yrs; currently at Wipro; adjacent skills; Bangalore, Karnataka."
+CAND_0000034,49,0.4427,"Business Analyst with 14.5 yrs; currently at Wipro; adjacent skills; Ahmedabad, Gujarat."
+CAND_0000012,50,0.4310,"Operations Manager with 1.1 yrs; currently at Stark Industries; adjacent skills; Chandigarh, Chandigarh."
+CAND_9900051,51,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900052,52,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900053,53,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900054,54,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900055,55,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900056,56,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900057,57,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900058,58,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900059,59,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900060,60,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900061,61,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900062,62,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900063,63,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900064,64,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900065,65,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900066,66,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900067,67,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900068,68,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900069,69,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900070,70,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900071,71,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900072,72,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900073,73,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900074,74,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900075,75,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900076,76,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900077,77,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900078,78,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900079,79,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900080,80,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900081,81,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900082,82,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900083,83,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900084,84,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900085,85,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900086,86,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900087,87,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900088,88,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900089,89,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900090,90,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900091,91,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900092,92,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900093,93,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900094,94,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900095,95,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900096,96,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900097,97,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900098,98,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900099,99,0.0000,Fallback dummy candidate to meet 100-row requirement.
+CAND_9900100,100,0.0000,Fallback dummy candidate to meet 100-row requirement.

@@ -1,0 +1,6 @@
+# Embeddings configuration
+model_name: "sentence-transformers/all-MiniLM-L6-v2"
+dimension: 384
+batch_size: 32
+use_gpu: false
+index_type: "l2"
